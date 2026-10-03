@@ -23,11 +23,6 @@ export default function HomePage({ onNavigate, onOpenList }) {
     <div className="fade-in">
       {/* Hero Banner */}
       <section className="hero-section">
-        <div className="hero-tag">
-          <Sparkles size={14} />
-          <span>Hacktoberfest 2026 • Built for Roommates</span>
-        </div>
-
         <h1 className="hero-title">
           Turn chaotic grocery messages into a <span>clean shopping list</span>.
         </h1>
