@@ -1,0 +1,74 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String              @id @default(uuid())
+  name        String              @default("Roommate & Me")
+  email       String?             @unique
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  lists       GroceryList[]
+  preferences GroceryPreference[]
+
+  @@map("users")
+}
+
+model GroceryList {
+  id          String        @id @default(uuid())
+  userId      String?
+  user        User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  title       String        @default("Grocery List")
+  rawInput    String        @db.Text
+  status      String        @default("active") // "active", "completed", "archived"
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  items       GroceryItem[]
+
+  @@map("grocery_lists")
+}
+
+model GroceryItem {
+  id                String       @id @default(uuid())
+  groceryListId     String
+  groceryList       GroceryList  @relation(fields: [groceryListId], references: [id], onDelete: Cascade)
+  name              String
+  quantity          Float        @default(1)
+  unit              String       @default("packet")
+  category          String       @default("General")
+  notes             String?
+  status            String       @default("active") // "active", "cancelled"
+  isPurchased       Boolean      @default(false)
+  purchasedAt       DateTime?
+  confidence        Float        @default(1.0)
+  matchedPreference String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@map("grocery_items")
+}
+
+model GroceryPreference {
+  id               String   @id @default(uuid())
+  userId           String?
+  user             User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  itemName         String
+  preferredProduct String
+  defaultQuantity  Float    @default(1)
+  defaultUnit      String   @default("packet")
+  category         String   @default("General")
+  notes            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([userId, itemName])
+  @@map("grocery_preferences")
+}
